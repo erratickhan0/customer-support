@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Head, router, usePoll } from '@inertiajs/vue3';
-import api from '@/routes/api';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { dashboard } from '@/routes';
-import { computed, ref } from 'vue';
+import api from '@/routes/api';
 
 defineOptions({
     layout: {
@@ -25,6 +25,7 @@ type MessageItem = {
 
 type ConversationItem = {
     id: number;
+    agency_id: number;
     session_id: string;
     status: 'ai_handled' | 'human_required' | 'human_active' | 'closed';
     last_message_at: string | null;
@@ -164,6 +165,52 @@ const sendReply = async (): Promise<void> => {
         isSubmitting.value = false;
     }
 };
+
+const subscribeToConversation = (conversation: ConversationItem): void => {
+    if (!window.Echo) {
+        return;
+    }
+
+    const channelName = `agencies.${conversation.agency_id}.conversations.${conversation.id}`;
+
+    window.Echo.channel(channelName).listen('.message.created', () => {
+        router.reload({
+            only: ['conversations', 'selectedConversation'],
+            preserveScroll: true,
+            preserveState: true,
+        });
+    });
+    window.Echo.channel(channelName).listen('.conversation.status_changed', () => {
+        router.reload({
+            only: ['conversations', 'selectedConversation'],
+            preserveScroll: true,
+            preserveState: true,
+        });
+    });
+};
+
+const leaveConversationChannel = (conversation: ConversationItem | null | undefined): void => {
+    if (window.Echo && conversation) {
+        const channelName = `agencies.${conversation.agency_id}.conversations.${conversation.id}`;
+        window.Echo.leave(channelName);
+    }
+};
+
+watch(
+    () => props.selectedConversation,
+    (conversation, previousConversation) => {
+        leaveConversationChannel(previousConversation);
+
+        if (conversation) {
+            subscribeToConversation(conversation);
+        }
+    },
+    { immediate: true },
+);
+
+onBeforeUnmount(() => {
+    leaveConversationChannel(props.selectedConversation);
+});
 </script>
 
 <template>

@@ -44,4 +44,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Conversation::class, 'assigned_user_id');
     }
+
+    public function knowledgeDocuments(): HasMany
+    {
+        return $this->hasMany(KnowledgeDocument::class, 'created_by_user_id');
+    }
 }

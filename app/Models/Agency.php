@@ -28,4 +28,9 @@ class Agency extends Model
     {
         return $this->hasMany(Conversation::class);
     }
+
+    public function knowledgeDocuments(): HasMany
+    {
+        return $this->hasMany(KnowledgeDocument::class);
+    }
 }

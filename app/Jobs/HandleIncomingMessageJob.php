@@ -5,7 +5,7 @@ namespace App\Jobs;
 use App\Events\ConversationStatusChanged;
 use App\Events\MessageCreated;
 use App\Models\Message;
-use App\Services\AI\RuleBasedResponder;
+use App\Services\AI\ConversationResponder;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Carbon;
@@ -16,7 +16,7 @@ class HandleIncomingMessageJob implements ShouldQueue
 
     public function __construct(public int $messageId) {}
 
-    public function handle(RuleBasedResponder $responder): void
+    public function handle(ConversationResponder $responder): void
     {
         $userMessage = Message::query()
             ->with('conversation')
@@ -27,7 +27,10 @@ class HandleIncomingMessageJob implements ShouldQueue
         }
 
         $conversation = $userMessage->conversation;
-        $response = $responder->generate($userMessage->content);
+        $response = $responder->generateForAgency(
+            (int) $userMessage->agency_id,
+            $userMessage->content,
+        );
 
         $aiMessage = Message::query()->create([
             'agency_id' => $userMessage->agency_id,
@@ -35,7 +38,7 @@ class HandleIncomingMessageJob implements ShouldQueue
             'sender_type' => 'ai',
             'content' => $response['reply'],
             'confidence' => $response['confidence'],
-            'metadata' => ['provider' => 'rule_based'],
+            'metadata' => $response['metadata'] ?? ['provider' => 'unknown'],
         ]);
 
         $status = $response['confidence'] < 0.50 ? 'human_required' : 'ai_handled';
