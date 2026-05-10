@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'slug', 'is_active'])]
+#[Fillable(['name', 'slug', 'is_active', 'ai_provider', 'ai_confidence_threshold', 'ai_auto_handoff'])]
 class Agency extends Model
 {
     use HasFactory;
@@ -16,6 +16,8 @@ class Agency extends Model
     {
         return [
             'is_active' => 'bool',
+            'ai_confidence_threshold' => 'float',
+            'ai_auto_handoff' => 'bool',
         ];
     }
 

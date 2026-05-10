@@ -17,8 +17,21 @@ class ConversationResponder
     /**
      * @return array{reply: string, confidence: float, metadata: array<string, mixed>}
      */
-    public function generateForAgency(int $agencyId, string $userMessage): array
+    public function generateForAgency(int $agencyId, string $userMessage, string $preferredProvider = 'openai'): array
     {
+        if ($preferredProvider === 'rule_based') {
+            $rule = $this->ruleBased->generate($userMessage);
+
+            return [
+                'reply' => $rule['reply'],
+                'confidence' => $rule['confidence'],
+                'metadata' => [
+                    'mode' => 'rule_based_provider',
+                    'provider' => 'rule_based',
+                ],
+            ];
+        }
+
         try {
             $contextRows = $this->retrieval->retrieveContext($agencyId, $userMessage, 5);
         } catch (Throwable $e) {

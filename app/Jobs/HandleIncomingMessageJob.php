@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Events\ConversationStatusChanged;
 use App\Events\MessageCreated;
+use App\Models\Agency;
 use App\Models\Message;
 use App\Services\AI\ConversationResponder;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -27,9 +28,12 @@ class HandleIncomingMessageJob implements ShouldQueue
         }
 
         $conversation = $userMessage->conversation;
+        $agency = Agency::query()->find($userMessage->agency_id);
+        $provider = $agency?->ai_provider ?: 'openai';
         $response = $responder->generateForAgency(
             (int) $userMessage->agency_id,
             $userMessage->content,
+            $provider,
         );
 
         $aiMessage = Message::query()->create([
@@ -41,7 +45,18 @@ class HandleIncomingMessageJob implements ShouldQueue
             'metadata' => $response['metadata'] ?? ['provider' => 'unknown'],
         ]);
 
-        $status = $response['confidence'] < 0.50 ? 'human_required' : 'ai_handled';
+        $threshold = (float) ($agency?->ai_confidence_threshold ?? 0.50);
+        $autoHandoff = (bool) ($agency?->ai_auto_handoff ?? true);
+        $needsHuman = $response['confidence'] < $threshold;
+        $status = ($autoHandoff && $needsHuman) ? 'human_required' : 'ai_handled';
+
+        $metadata = (array) ($aiMessage->metadata ?? []);
+        $aiMessage->forceFill([
+            'metadata' => array_merge($metadata, [
+                'confidence_threshold' => $threshold,
+                'auto_handoff' => $autoHandoff,
+            ]),
+        ])->save();
 
         $conversation->forceFill([
             'status' => $status,

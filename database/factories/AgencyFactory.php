@@ -23,6 +23,9 @@ class AgencyFactory extends Factory
             'name' => $name,
             'slug' => str($name)->slug()->toString(),
             'is_active' => true,
+            'ai_provider' => 'openai',
+            'ai_confidence_threshold' => 0.50,
+            'ai_auto_handoff' => true,
         ];
     }
 }
