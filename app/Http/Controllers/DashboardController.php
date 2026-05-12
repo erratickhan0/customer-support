@@ -24,10 +24,13 @@ class DashboardController extends Controller
 
         $selectedConversation = null;
 
-        if (isset($filters['conversation']) && $request->user()->agency_id) {
+        $selectedConversationId = $filters['conversation']
+            ?? $conversations->first()?->getKey();
+
+        if ($selectedConversationId && $request->user()->agency_id) {
             $selectedConversation = Conversation::query()
                 ->where('agency_id', $request->user()->agency_id)
-                ->whereKey($filters['conversation'])
+                ->whereKey($selectedConversationId)
                 ->with(['messages' => fn ($query) => $query->orderBy('created_at'), 'latestMessage'])
                 ->first();
         }
@@ -38,7 +41,9 @@ class DashboardController extends Controller
                 'q' => $filters['q'] ?? null,
             ],
             'conversations' => ConversationResource::collection($conversations),
-            'selectedConversation' => $selectedConversation ? new ConversationResource($selectedConversation) : null,
+            'selectedConversation' => $selectedConversation
+                ? (new ConversationResource($selectedConversation))->resolve($request)
+                : null,
         ]);
     }
 }

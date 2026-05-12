@@ -9,6 +9,7 @@ import { edit as editAppearance } from '@/routes/appearance';
 import { edit as editAiSettings } from '@/routes/ai-settings';
 import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
+import { edit as editWidgetSettings } from '@/routes/widget-settings';
 import type { NavItem } from '@/types';
 
 const sidebarNavItems: NavItem[] = [
@@ -27,6 +28,10 @@ const sidebarNavItems: NavItem[] = [
     {
         title: 'AI settings',
         href: editAiSettings(),
+    },
+    {
+        title: 'Widget',
+        href: editWidgetSettings(),
     },
 ];
 

@@ -3,11 +3,13 @@
 use App\Http\Controllers\Api\AgentMessageController;
 use App\Http\Controllers\Api\InboxConversationController;
 use App\Http\Controllers\Api\KnowledgeDocumentController;
+use App\Http\Controllers\Api\WidgetConversationController;
 use App\Http\Controllers\Api\WidgetMessageController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('throttle:60,1')->group(function () {
     Route::post('widget/messages', WidgetMessageController::class)->name('api.widget.messages.store');
+    Route::get('widget/conversations/{conversation}', WidgetConversationController::class)->name('api.widget.conversations.show');
 });
 
 Route::middleware(['web', 'auth', 'verified'])->prefix('inbox')->group(function () {

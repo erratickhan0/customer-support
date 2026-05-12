@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "06b2475d1dca82ab67958b9325d1b4c1",
+    "content-hash": "9a41fae40d4f5cb7808d608a487ee0ee",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -8464,12 +8464,12 @@
             "version": "v1.0.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/nunomaduro/pao.git",
+                "url": "https://github.com/laravel/pao.git",
                 "reference": "abb05092e543e031b035058894ede0f5e7dbfecf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nunomaduro/pao/zipball/abb05092e543e031b035058894ede0f5e7dbfecf",
+                "url": "https://api.github.com/repos/laravel/pao/zipball/abb05092e543e031b035058894ede0f5e7dbfecf",
                 "reference": "abb05092e543e031b035058894ede0f5e7dbfecf",
                 "shasum": ""
             },
@@ -10651,12 +10651,12 @@
             "version": "v1.1.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/shipfastlabs/agent-detector.git",
+                "url": "https://github.com/laravel/agent-detector.git",
                 "reference": "0faef92b88c6680b3fc53c8f349ea868181d2484"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/shipfastlabs/agent-detector/zipball/0faef92b88c6680b3fc53c8f349ea868181d2484",
+                "url": "https://api.github.com/repos/laravel/agent-detector/zipball/0faef92b88c6680b3fc53c8f349ea868181d2484",
                 "reference": "0faef92b88c6680b3fc53c8f349ea868181d2484",
                 "shasum": ""
             },

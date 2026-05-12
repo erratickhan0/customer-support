@@ -3,6 +3,7 @@
 use App\Http\Controllers\Settings\AiSettingsController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\SecurityController;
+use App\Http\Controllers\Settings\WidgetSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
@@ -18,6 +19,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('settings/security', [SecurityController::class, 'edit'])->name('security.edit');
     Route::get('settings/ai', [AiSettingsController::class, 'edit'])->name('ai-settings.edit');
     Route::put('settings/ai', [AiSettingsController::class, 'update'])->name('ai-settings.update');
+    Route::get('settings/widget', [WidgetSettingsController::class, 'edit'])->name('widget-settings.edit');
+    Route::post('settings/widget', [WidgetSettingsController::class, 'store'])->name('widget-settings.store');
 
     Route::put('settings/password', [SecurityController::class, 'update'])
         ->middleware('throttle:6,1')

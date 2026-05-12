@@ -22,8 +22,14 @@ class ConversationResource extends JsonResource
             'assigned_user_id' => $this->assigned_user_id,
             'last_message_at' => $this->last_message_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
-            'latest_message' => new MessageResource($this->whenLoaded('latestMessage')),
-            'messages' => MessageResource::collection($this->whenLoaded('messages')),
+            'latest_message' => $this->whenLoaded(
+                'latestMessage',
+                fn () => (new MessageResource($this->latestMessage))->resolve($request),
+            ),
+            'messages' => $this->whenLoaded(
+                'messages',
+                fn () => MessageResource::collection($this->messages)->resolve($request),
+            ),
         ];
     }
 }

@@ -21,6 +21,26 @@ test('ai settings page is displayed', function () {
         );
 });
 
+test('ai settings page creates a workspace for users without an agency', function () {
+    $user = User::factory()->create(['agency_id' => null]);
+
+    $this->actingAs($user)
+        ->get(route('ai-settings.edit'))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('settings/AiSettings')
+            ->where('settings.ai_provider', 'openai')
+            ->where('settings.ai_confidence_threshold', 0.5)
+            ->where('settings.ai_auto_handoff', true),
+        );
+
+    expect($user->refresh()->agency_id)->not->toBeNull();
+
+    $this->assertDatabaseHas('agencies', [
+        'name' => $user->name."'s Workspace",
+    ]);
+});
+
 test('ai settings can be updated for users agency', function () {
     $user = User::factory()->create();
     $otherAgency = Agency::factory()->create([

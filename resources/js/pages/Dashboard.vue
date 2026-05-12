@@ -69,6 +69,24 @@ const statusClassMap: Record<ConversationItem['status'], string> = {
 const openCount = computed(() => props.conversations.data.filter((item) => item.status !== 'closed').length);
 const escalationCount = computed(() => props.conversations.data.filter((item) => item.status === 'human_required').length);
 
+const dashboardUrl = (conversationId?: number): string => {
+    const query: Record<string, string | number> = {};
+
+    if (selectedStatus.value) {
+        query.status = selectedStatus.value;
+    }
+
+    if (search.value) {
+        query.q = search.value;
+    }
+
+    if (conversationId) {
+        query.conversation = conversationId;
+    }
+
+    return dashboard.url({ query });
+};
+
 usePoll(
     7000,
     {
@@ -83,13 +101,7 @@ usePoll(
 
 const applyFilters = (): void => {
     router.get(
-        dashboard.url({
-            query: {
-                status: selectedStatus.value || undefined,
-                q: search.value || undefined,
-                conversation: props.selectedConversation?.id,
-            },
-        }),
+        dashboardUrl(props.selectedConversation?.id),
         {},
         {
             preserveState: true,
@@ -102,13 +114,7 @@ const applyFilters = (): void => {
 
 const selectConversation = (conversationId: number): void => {
     router.get(
-        dashboard.url({
-            query: {
-                status: selectedStatus.value || undefined,
-                q: search.value || undefined,
-                conversation: conversationId,
-            },
-        }),
+        dashboardUrl(conversationId),
         {},
         {
             preserveState: true,
@@ -150,7 +156,8 @@ const sendReply = async (): Promise<void> => {
         });
 
         if (! response.ok) {
-            throw new Error('Unable to send message.');
+            const errorBody = await response.json().catch(() => null);
+            throw new Error(errorBody?.message ?? 'Unable to send message.');
         }
 
         reply.value = '';
@@ -167,6 +174,10 @@ const sendReply = async (): Promise<void> => {
 };
 
 const subscribeToConversation = (conversation: ConversationItem): void => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
     if (!window.Echo) {
         return;
     }
@@ -190,6 +201,10 @@ const subscribeToConversation = (conversation: ConversationItem): void => {
 };
 
 const leaveConversationChannel = (conversation: ConversationItem | null | undefined): void => {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
     if (window.Echo && conversation) {
         const channelName = `agencies.${conversation.agency_id}.conversations.${conversation.id}`;
         window.Echo.leave(channelName);

@@ -1,6 +1,9 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
+
+uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->skipUnlessFortifyHas(Features::registration());
@@ -21,5 +24,12 @@ test('new users can register', function () {
     ]);
 
     $this->assertAuthenticated();
+    expect(auth()->user()->agency_id)->not->toBeNull();
+
+    $this->assertDatabaseHas('agencies', [
+        'name' => "Test User's Workspace",
+        'slug' => 'test-users-workspace',
+    ]);
+
     $response->assertRedirect(route('dashboard', absolute: false));
 });

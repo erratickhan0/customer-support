@@ -4,20 +4,17 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\AiSettingsUpdateRequest;
-use App\Models\Agency;
+use App\Services\Agency\UserAgencyResolver;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class AiSettingsController extends Controller
 {
-    public function edit(Request $request): Response
+    public function edit(Request $request, UserAgencyResolver $agencyResolver): Response
     {
-        $agency = $request->user()->agency;
-
-        abort_if($agency === null, HttpResponse::HTTP_UNPROCESSABLE_ENTITY, 'User is not assigned to an agency.');
+        $agency = $agencyResolver->resolve($request->user());
 
         return Inertia::render('settings/AiSettings', [
             'settings' => [
@@ -28,9 +25,9 @@ class AiSettingsController extends Controller
         ]);
     }
 
-    public function update(AiSettingsUpdateRequest $request): RedirectResponse
+    public function update(AiSettingsUpdateRequest $request, UserAgencyResolver $agencyResolver): RedirectResponse
     {
-        $agency = Agency::query()->findOrFail($request->user()->agency_id);
+        $agency = $agencyResolver->resolve($request->user());
 
         $agency->update($request->validated());
 
